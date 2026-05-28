@@ -60,8 +60,18 @@ const POOP_SPRITE: Color[][] = [
   [C._, C.W, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C.W, C._],  // 13  base
 ]
 
-function drawSprite(ctx: CanvasRenderingContext2D, sprite: Color[][], x: number, y: number, scale = 1) {
-  const px = Math.round(SCALE * scale)
+const POOP_SQUASH = 0.65  // 세로 압축 비율
+
+function drawSprite(
+  ctx: CanvasRenderingContext2D,
+  sprite: Color[][],
+  x: number,
+  y: number,
+  scale = 1,
+  scaleY = scale,
+) {
+  const pxW = Math.round(SCALE * scale)
+  const pxH = Math.round(SCALE * scaleY)
   for (let row = 0; row < sprite.length; row++) {
     for (let col = 0; col < sprite[row].length; col++) {
       const color = sprite[row][col]
@@ -69,8 +79,8 @@ function drawSprite(ctx: CanvasRenderingContext2D, sprite: Color[][], x: number,
       ctx.fillStyle = color
       ctx.fillRect(
         Math.round(x + col * SCALE * scale),
-        Math.round(y + row * SCALE * scale),
-        px, px,
+        Math.round(y + row * SCALE * scaleY),
+        pxW, pxH,
       )
     }
   }
@@ -94,10 +104,10 @@ export function drawCharacter(ctx: CanvasRenderingContext2D, x: number, y: numbe
 }
 
 export function drawPoop(ctx: CanvasRenderingContext2D, x: number, y: number, size = 1) {
-  // 13 cols wide — center on column 6 (the swirl tip & body axis)
+  const scaleY = size * POOP_SQUASH
   const spriteW = POOP_SPRITE[0].length * SCALE * size
-  const spriteH = POOP_SPRITE.length * SCALE * size
-  drawSprite(ctx, POOP_SPRITE, Math.round(x - spriteW / 2), Math.round(y - spriteH / 2), size)
+  const spriteH = POOP_SPRITE.length * SCALE * scaleY
+  drawSprite(ctx, POOP_SPRITE, Math.round(x - spriteW / 2), Math.round(y - spriteH / 2), size, scaleY)
 }
 
 export function drawHUD(ctx: CanvasRenderingContext2D, elapsedMs: number, w: number) {
@@ -115,5 +125,5 @@ export function drawHUD(ctx: CanvasRenderingContext2D, elapsedMs: number, w: num
 
 export const CHAR_HEIGHT = CHARACTER_FRAMES[0].length * SCALE
 export const CHAR_WIDTH = CHARACTER_FRAMES[0][0].length * SCALE
-export const POOP_HEIGHT = POOP_SPRITE.length * SCALE
+export const POOP_HEIGHT = POOP_SPRITE.length * SCALE * POOP_SQUASH
 export const POOP_WIDTH = POOP_SPRITE[0].length * SCALE
