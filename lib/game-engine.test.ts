@@ -70,7 +70,7 @@ describe('getDifficulty', () => {
   it('maxPoops >= 2 after 20 seconds', () => {
     expect(getDifficulty(20000).maxPoops).toBeGreaterThanOrEqual(2)
   })
-  it('maxPoops starts at 1', () => {
-    expect(getDifficulty(0).maxPoops).toBe(1)
+  it('maxPoops starts at 2', () => {
+    expect(getDifficulty(0).maxPoops).toBe(2)
   })
 })

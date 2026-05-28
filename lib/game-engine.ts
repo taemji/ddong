@@ -36,8 +36,8 @@ export function checkCollision(poop: Poop, characterX: number): boolean {
 export function getDifficulty(elapsedMs: number): Difficulty {
   const s = elapsedMs / 1000
   return {
-    speed: 0.55 + s * 0.025,
-    maxPoops: Math.min(8, Math.floor(1 + s / 6)),
-    spawnInterval: Math.max(400, 1200 - s * 40),
+    speed: 0.85 + s * 0.025,
+    maxPoops: Math.min(8, Math.floor(2 + s / 5)),
+    spawnInterval: Math.max(350, 700 - s * 20),
   }
 }
