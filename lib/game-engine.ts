@@ -15,7 +15,7 @@ export function moveCharacter(x: number, direction: Direction, deltaSeconds: num
 }
 
 export function spawnPoop(speed: number): Poop {
-  const size = 0.7 + Math.random() * 0.8
+  const size = 0.7 + Math.random() * 0.5
   const halfW = POOP_BASE_HALF_W * size
   const x = halfW + Math.random() * (CANVAS_W - halfW * 2)
   return { id: crypto.randomUUID(), x, y: 0, speed, size }
