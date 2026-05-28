@@ -56,7 +56,7 @@ const POOP_SPRITE: Color[][] = [
   [C._, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C._],  //  9  SEAM 2
   [C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W],  // 10  tier 1 widest
   [C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W],  // 11  cheeks
-  [C.W, C.X, C.X, C.E, C.E, C.E, C.E, C.E, C.E, C.E, C.X, C.X, C.W],  // 12  SMILE (bottom)
+  [C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W],  // 12  body (no mouth)
   [C._, C.W, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C.W, C._],  // 13  base
 ]
 
