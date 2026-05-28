@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button'
 import type { GamePhase } from '@/types/game'
-import { cn } from '@/lib/utils'
 
 interface Props {
   phase: GamePhase
@@ -21,60 +20,69 @@ export function GameOverlay({ phase, elapsedMs, bestScore, isNewRecord, onStart,
   if (phase === 'playing') return null
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-black/72 backdrop-blur-[2px]">
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6"
+      style={{ background: 'rgba(10,8,20,0.55)', backdropFilter: 'blur(1px)' }}>
+
       {phase === 'idle' && (
         <>
-          <h1 className="text-3xl font-bold tracking-widest text-white">똥피하기</h1>
-          <p className="text-xs tracking-[0.4em] text-white/50">POOP DODGE</p>
-
-          <div className="flex items-center justify-between w-48 px-4 py-2 border border-white/20 rounded bg-white/5">
-            <span className="text-xs text-white/60 tracking-wider">최고기록</span>
-            <span className="text-lg font-bold text-white">{formatTime(bestScore)}</span>
+          <div className="text-center">
+            <h1 className="text-4xl font-bold tracking-[0.3em] text-white">똥피하기</h1>
+            <p className="text-[11px] tracking-[0.6em] text-white/30 mt-2">POOP DODGE</p>
           </div>
+
+          {bestScore > 0 && (
+            <p className="text-sm text-white/45 tracking-widest">
+              최고기록 &nbsp; {formatTime(bestScore)}
+            </p>
+          )}
 
           <Button
             onClick={onStart}
-            className="w-48 tracking-widest bg-white text-black hover:bg-white/90 font-bold"
+            className="w-44 bg-white/95 text-black hover:bg-white font-bold tracking-widest rounded-sm"
           >
             시 작
           </Button>
 
-          <p className="text-[11px] text-white/40 tracking-wider">
-            PC: ← → 방향키 · 모바일: 하단 버튼
+          <p className="text-[10px] text-white/25 tracking-wider">
+            ← → 방향키 또는 하단 버튼
           </p>
         </>
       )}
 
       {phase === 'gameover' && (
         <>
-          <h2 className="text-2xl font-bold tracking-[0.3em] text-white">GAME OVER</h2>
+          <p className="text-xs tracking-[0.5em] text-white/40 font-medium">GAME OVER</p>
 
           {isNewRecord && (
-            <span className="px-4 py-1 border border-yellow-400/60 text-yellow-300 text-sm font-bold tracking-widest bg-yellow-400/10">
-              ★ 신기록! ★
-            </span>
+            <p className="text-yellow-400/90 text-[11px] tracking-[0.4em] -mt-3">
+              ✦ NEW RECORD ✦
+            </p>
           )}
 
-          <div className="text-center">
-            <p className="text-[11px] text-white/50 tracking-wider mb-1">생존 시간</p>
-            <p className="text-4xl font-bold tracking-wider text-white">{formatTime(elapsedMs)}</p>
+          {/* Hero: big time */}
+          <div className="text-center -mt-1">
+            <p className="text-6xl font-bold text-white tabular-nums leading-none">
+              {(elapsedMs / 1000).toFixed(2)}
+            </p>
+            <p className="text-sm text-white/40 mt-1 tracking-wider">초</p>
           </div>
 
-          <div className={cn(
-            'text-center px-6 py-2 rounded bg-white/5',
-            isNewRecord ? 'border border-yellow-400/40' : 'border border-white/15'
-          )}>
-            <p className="text-[11px] text-white/50 tracking-wider mb-1">
-              최고기록{isNewRecord ? ' (갱신됨)' : ''}
+          {/* Best score — only shown if not new record (avoid redundancy) */}
+          {!isNewRecord && (
+            <p className="text-sm text-white/35 tracking-widest -mt-2">
+              최고기록 {formatTime(bestScore)}
             </p>
-            <p className={cn('text-xl font-bold', isNewRecord ? 'text-yellow-300' : 'text-white')}>
-              {formatTime(bestScore)}
+          )}
+          {isNewRecord && (
+            <p className="text-sm text-yellow-400/60 tracking-widest -mt-2">
+              새 최고기록 🎉
             </p>
-          </div>
+          )}
 
           <Button
             onClick={onRestart}
-            className="w-48 tracking-widest bg-white text-black hover:bg-white/90 font-bold"
+            variant="outline"
+            className="w-44 border-white/25 text-white/80 hover:bg-white/10 hover:text-white rounded-sm tracking-widest bg-transparent"
           >
             다시 시작
           </Button>

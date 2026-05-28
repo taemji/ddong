@@ -10,13 +10,13 @@ const C = {
   T: '#222288',
   P: '#e8c87a',
   D: '#5a3e00',
-  // poop
-  W: '#4a2800',   // darkest outline
-  X: '#7a4200',   // mid-dark
-  Y: '#b06818',   // mid-light
-  Z: '#d49040',   // highlight
-  E: '#f0f0f0',   // eye white
-  F: '#1a0a00',   // eye pupil
+  // poop — warm saturated browns
+  W: '#3d1800',   // dark outline
+  X: '#7a3800',   // body dark
+  Y: '#b05820',   // body mid
+  Z: '#e09040',   // warm highlight
+  E: '#f5f0e0',   // eye white (warm)
+  F: '#1a0600',   // pupil
 } as const
 
 type Color = typeof C[keyof typeof C]
@@ -40,18 +40,21 @@ const CHARACTER_FRAMES: Color[][][] = [
   ],
 ]
 
-// 8×10 emoji-style poop: swirl top + eyes + round body
+// 9×12 poop — swirl hook (rows 0-3) + round body + face
+// The open circle in row 2 makes the spiral unmistakable
 const POOP_SPRITE: Color[][] = [
-  [C._, C._, C._, C.W, C._, C._, C._, C._],  // swirl tip
-  [C._, C._, C.W, C.X, C.W, C._, C._, C._],  // swirl left
-  [C._, C._, C._, C.W, C.X, C.W, C._, C._],  // swirl right
-  [C._, C.W, C.W, C.X, C.Y, C.X, C.W, C._],  // swirl base
-  [C.W, C.X, C.Y, C.Y, C.Z, C.Y, C.X, C.W],  // body top + highlight
-  [C.W, C.X, C.E, C.X, C.Y, C.E, C.X, C.W],  // eye whites
-  [C.W, C.X, C.F, C.X, C.Y, C.F, C.X, C.W],  // pupils
-  [C.W, C.X, C.X, C.Y, C.Y, C.X, C.X, C.W],  // cheeks
-  [C._, C.W, C.X, C.X, C.X, C.X, C.W, C._],  // base
-  [C._, C._, C.W, C.W, C.W, C.W, C._, C._],  // bottom
+  [C._, C._, C._, C.W, C._, C._, C._, C._, C._],  // 0  swirl tip
+  [C._, C._, C.W, C.X, C.W, C._, C._, C._, C._],  // 1  hook curve
+  [C._, C.W, C.X, C._, C.X, C.W, C._, C._, C._],  // 2  OPEN LOOP ← key
+  [C._, C.W, C.X, C.X, C.X, C.W, C._, C._, C._],  // 3  loop floor
+  [C._, C.W, C.X, C.Y, C.X, C.X, C.W, C._, C._],  // 4  neck→body
+  [C._, C.W, C.X, C.Y, C.Y, C.X, C.X, C.W, C._],  // 5  upper body
+  [C.W, C.X, C.Y, C.Z, C.Z, C.Y, C.X, C.X, C.W],  // 6  widest + highlight
+  [C.W, C.X, C.E, C.Y, C.Y, C.Y, C.E, C.X, C.W],  // 7  eye whites
+  [C.W, C.X, C.F, C.Y, C.Y, C.Y, C.F, C.X, C.W],  // 8  pupils
+  [C.W, C.X, C.X, C.Y, C.Y, C.Y, C.X, C.X, C.W],  // 9  lower body
+  [C._, C.W, C.X, C.X, C.X, C.X, C.X, C.W, C._],  // 10 base
+  [C._, C._, C.W, C.W, C.W, C.W, C.W, C._, C._],  // 11 bottom flat
 ]
 
 function drawSprite(ctx: CanvasRenderingContext2D, sprite: Color[][], x: number, y: number, scale = 1) {
@@ -99,9 +102,9 @@ export function drawHUD(ctx: CanvasRenderingContext2D, elapsedMs: number, w: num
   ctx.font = 'bold 13px monospace'
   ctx.textAlign = 'right'
   ctx.textBaseline = 'top'
-  ctx.fillStyle = 'rgba(0,0,0,0.5)'
+  ctx.fillStyle = 'rgba(0,0,0,0.45)'
   ctx.fillRect(w - 76, 6, 70, 20)
-  ctx.fillStyle = 'rgba(255,255,255,0.95)'
+  ctx.fillStyle = 'rgba(255,255,255,0.92)'
   ctx.fillText(text, w - 10, 9)
   ctx.restore()
 }
