@@ -5,7 +5,7 @@ export const CANVAS_H = 480
 export const CHAR_SPEED = 260   // px/s
 export const CHAR_HALF_W = 8    // half of character pixel width
 const COLLISION_Y = 0.78
-const POOP_BASE_HALF_W = 12    // half of poop pixel width at size 1.0
+const POOP_BASE_HALF_W = 16    // half of poop pixel width at size 1.0 (8col × 4scale / 2)
 
 export function moveCharacter(x: number, direction: Direction, deltaSeconds: number): number {
   const moved = direction === 'left'

@@ -3,16 +3,20 @@ const SCALE = 4
 const C = {
   _: null,
   S: '#1a1a2e',
+  // character
   H: '#f5c842',
   K: '#e0a020',
   B: '#3a3aff',
   T: '#222288',
   P: '#e8c87a',
   D: '#5a3e00',
-  W: '#7b4a00',
-  X: '#a06010',
-  Y: '#c08030',
-  Z: '#d4a060',
+  // poop
+  W: '#4a2800',   // darkest outline
+  X: '#7a4200',   // mid-dark
+  Y: '#b06818',   // mid-light
+  Z: '#d49040',   // highlight
+  E: '#f0f0f0',   // eye white
+  F: '#1a0a00',   // eye pupil
 } as const
 
 type Color = typeof C[keyof typeof C]
@@ -36,13 +40,18 @@ const CHARACTER_FRAMES: Color[][][] = [
   ],
 ]
 
+// 8×10 emoji-style poop: swirl top + eyes + round body
 const POOP_SPRITE: Color[][] = [
-  [C._, C._, C.W, C.W, C._, C._],
-  [C._, C.W, C.X, C.X, C.W, C._],
-  [C.W, C.X, C.Y, C.Z, C.X, C.W],
-  [C.W, C.X, C.Y, C.Y, C.X, C.W],
-  [C._, C.W, C.X, C.X, C.W, C._],
-  [C._, C._, C.W, C.W, C._, C._],
+  [C._, C._, C._, C.W, C._, C._, C._, C._],  // swirl tip
+  [C._, C._, C.W, C.X, C.W, C._, C._, C._],  // swirl left
+  [C._, C._, C._, C.W, C.X, C.W, C._, C._],  // swirl right
+  [C._, C.W, C.W, C.X, C.Y, C.X, C.W, C._],  // swirl base
+  [C.W, C.X, C.Y, C.Y, C.Z, C.Y, C.X, C.W],  // body top + highlight
+  [C.W, C.X, C.E, C.X, C.Y, C.E, C.X, C.W],  // eye whites
+  [C.W, C.X, C.F, C.X, C.Y, C.F, C.X, C.W],  // pupils
+  [C.W, C.X, C.X, C.Y, C.Y, C.X, C.X, C.W],  // cheeks
+  [C._, C.W, C.X, C.X, C.X, C.X, C.W, C._],  // base
+  [C._, C._, C.W, C.W, C.W, C.W, C._, C._],  // bottom
 ]
 
 function drawSprite(ctx: CanvasRenderingContext2D, sprite: Color[][], x: number, y: number, scale = 1) {

@@ -21,7 +21,7 @@ export function GameOverlay({ phase, elapsedMs, bestScore, isNewRecord, onStart,
   if (phase === 'playing') return null
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-black/85 backdrop-blur-sm">
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-black/72 backdrop-blur-[2px]">
       {phase === 'idle' && (
         <>
           <h1 className="text-3xl font-bold tracking-widest text-white">똥피하기</h1>
