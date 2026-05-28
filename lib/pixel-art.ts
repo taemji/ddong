@@ -38,22 +38,27 @@ const CHARACTER_FRAMES: Color[][][] = [
   ],
 ]
 
-// 14×11 — pyramid / mountain shape matching reference emoji
-// Widest at face rows (rows 5-8), narrows to swirl tip at top
-// Swirl curls slightly right (off-center tip → body widens left+right)
-//       0  1  2  3  4  5  6  7  8  9 10 11 12 13
+// 13×14 — three-tier coiled poop (soft-serve stack)
+// Each tier is visibly wider than the one above, with a horizontal seam row between
+// Tier 3 (top):    cols 5-7, narrows to tip (rows 0-3)
+// Tier 2 (middle): cols 3-9, 7 wide (rows 5-7)
+// Tier 1 (bottom): cols 1-11, 11 wide, contains face (rows 9-13)
+//       0  1  2  3  4  5  6  7  8  9 10 11 12
 const POOP_SPRITE: Color[][] = [
-  [C._, C._, C._, C._, C._, C.W, C._, C._, C._, C._, C._, C._, C._, C._],  //  0  tip
-  [C._, C._, C._, C._, C.W, C.X, C.W, C._, C._, C._, C._, C._, C._, C._],  //  1  swirl
-  [C._, C._, C._, C._, C.W, C.X, C.X, C.W, C._, C._, C._, C._, C._, C._],  //  2  curl right
-  [C._, C._, C._, C.W, C.X, C.X, C.X, C.X, C.W, C._, C._, C._, C._, C._],  //  3  5-wide body
-  [C._, C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._, C._, C._],  //  4  7-wide
-  [C._, C.W, C.X, C.E, C.E, C.X, C.X, C.X, C.E, C.E, C.X, C.W, C._, C._],  //  5  eyes top
-  [C._, C.W, C.X, C.F, C.E, C.X, C.X, C.X, C.F, C.E, C.X, C.W, C._, C._],  //  6  pupils
-  [C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._],  //  7  cheeks
-  [C._, C.W, C.X, C.E, C.E, C.E, C.E, C.E, C.E, C.E, C.X, C.W, C._, C._],  //  8  smile / teeth
-  [C._, C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._, C._],  //  9  base
-  [C._, C._, C._, C.W, C.W, C.X, C.X, C.X, C.W, C.W, C._, C._, C._, C._],  // 10  bottom
+  [C._, C._, C._, C._, C._, C._, C.W, C._, C._, C._, C._, C._, C._],  //  0  tip
+  [C._, C._, C._, C._, C._, C.W, C.X, C.W, C._, C._, C._, C._, C._],  //  1  tip widens
+  [C._, C._, C._, C._, C.W, C.X, C.X, C.X, C.W, C._, C._, C._, C._],  //  2  tier 3 body
+  [C._, C._, C._, C._, C.W, C.X, C.X, C.X, C.W, C._, C._, C._, C._],  //  3  tier 3 base
+  [C._, C._, C._, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C._, C._, C._],  //  4  SEAM 1
+  [C._, C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._],  //  5  tier 2 wider
+  [C._, C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._],  //  6  tier 2 body
+  [C._, C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._],  //  7  tier 2 base
+  [C._, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C._],  //  8  SEAM 2
+  [C.W, C.X, C.X, C.E, C.E, C.X, C.X, C.X, C.E, C.E, C.X, C.X, C.W],  //  9  tier 1 — eyes
+  [C.W, C.X, C.X, C.E, C.F, C.X, C.X, C.X, C.E, C.F, C.X, C.X, C.W],  // 10  pupils
+  [C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W],  // 11  cheeks
+  [C.W, C.X, C.X, C.X, C.E, C.E, C.E, C.E, C.E, C.X, C.X, C.X, C.W],  // 12  smile
+  [C._, C.W, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C.W, C._],  // 13  base
 ]
 
 function drawSprite(ctx: CanvasRenderingContext2D, sprite: Color[][], x: number, y: number, scale = 1) {
@@ -90,12 +95,10 @@ export function drawCharacter(ctx: CanvasRenderingContext2D, x: number, y: numbe
 }
 
 export function drawPoop(ctx: CanvasRenderingContext2D, x: number, y: number, size = 1) {
-  // Center on the widest visible row (rows 5-9, cols 1-11 = 10px wide)
-  const visibleW = 10 * SCALE * size
+  // 13 cols wide — center on column 6 (the swirl tip & body axis)
+  const spriteW = POOP_SPRITE[0].length * SCALE * size
   const spriteH = POOP_SPRITE.length * SCALE * size
-  // x is center of poop; left-align so the visible face area is centered
-  const left = Math.round(x - SCALE * size - visibleW / 2)  // col1 starts 1 pixel right of left edge
-  drawSprite(ctx, POOP_SPRITE, left, Math.round(y - spriteH / 2), size)
+  drawSprite(ctx, POOP_SPRITE, Math.round(x - spriteW / 2), Math.round(y - spriteH / 2), size)
 }
 
 export function drawHUD(ctx: CanvasRenderingContext2D, elapsedMs: number, w: number) {
@@ -113,6 +116,5 @@ export function drawHUD(ctx: CanvasRenderingContext2D, elapsedMs: number, w: num
 
 export const CHAR_HEIGHT = CHARACTER_FRAMES[0].length * SCALE
 export const CHAR_WIDTH = CHARACTER_FRAMES[0][0].length * SCALE
-// Visible face area: cols 1-10 = 10 pixels wide
 export const POOP_HEIGHT = POOP_SPRITE.length * SCALE
-export const POOP_WIDTH = 10 * SCALE  // visible width only
+export const POOP_WIDTH = POOP_SPRITE[0].length * SCALE
