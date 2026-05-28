@@ -1,15 +1,15 @@
 'use client'
 
 import { useRef, useState, useCallback, useEffect } from 'react'
-import type { GameState, Lane, Direction } from '@/types/game'
-import { moveLane, spawnPoop, updatePoops, checkCollision, getDifficulty } from '@/lib/game-engine'
+import type { GameState } from '@/types/game'
+import { moveCharacter, spawnPoop, updatePoops, checkCollision, getDifficulty, CANVAS_W } from '@/lib/game-engine'
 import { getBestScore, setBestScore, isNewRecord } from '@/lib/best-score-store'
 
-const INITIAL_LANE: Lane = 3
+const INITIAL_X = CANVAS_W / 2
 
 const INITIAL_STATE = (): GameState => ({
   phase: 'idle',
-  lane: INITIAL_LANE,
+  characterX: INITIAL_X,
   elapsedMs: 0,
   poops: [],
   bestScore: getBestScore(),
@@ -22,14 +22,17 @@ export function useGameEngine() {
 
   const rafRef = useRef<number | null>(null)
   const lastTimeRef = useRef<number>(0)
-  const lastSpawnRef = useRef<number | null>(null) // null = not yet spawned this session
+  const lastSpawnRef = useRef<number | null>(null)
   const animTickRef = useRef<number>(0)
+
   const phaseRef = useRef<GameState['phase']>('idle')
   const elapsedRef = useRef<number>(0)
   const poopsRef = useRef<GameState['poops']>([])
+  const characterXRef = useRef<number>(INITIAL_X)
 
-  // Separate lane ref so tick always reads the latest value without waiting for setState commit
-  const laneRef = useRef<Lane>(INITIAL_LANE)
+  // Continuous movement: track which keys/buttons are held
+  const leftHeld = useRef(false)
+  const rightHeld = useRef(false)
 
   const stopLoop = useCallback(() => {
     if (rafRef.current !== null) {
@@ -44,34 +47,41 @@ export function useGameEngine() {
     const delta = lastTimeRef.current ? (timestamp - lastTimeRef.current) / 1000 : 0
     lastTimeRef.current = timestamp
 
+    // Smooth character movement from held keys
+    let newX = characterXRef.current
+    if (leftHeld.current) newX = moveCharacter(newX, 'left', delta)
+    if (rightHeld.current) newX = moveCharacter(newX, 'right', delta)
+    characterXRef.current = newX
+
     const newElapsed = elapsedRef.current + delta * 1000
     elapsedRef.current = newElapsed
     const difficulty = getDifficulty(newElapsed)
 
-    // Spawn poop — delay first spawn by one full interval
+    // Spawn poop — delay first spawn by one interval
     let newPoops = updatePoops(poopsRef.current, delta)
     if (lastSpawnRef.current === null) {
       lastSpawnRef.current = timestamp
-    } else {
-      const timeSinceSpawn = timestamp - lastSpawnRef.current
-      if (timeSinceSpawn >= difficulty.spawnInterval && newPoops.length < difficulty.maxPoops) {
-        const randomLane = (Math.floor(Math.random() * 5) + 1) as Lane
-        newPoops = [...newPoops, spawnPoop(randomLane, difficulty.speed)]
-        lastSpawnRef.current = timestamp
-      }
+    } else if (
+      timestamp - lastSpawnRef.current >= difficulty.spawnInterval &&
+      newPoops.length < difficulty.maxPoops
+    ) {
+      newPoops = [...newPoops, spawnPoop(difficulty.speed)]
+      lastSpawnRef.current = timestamp
     }
     poopsRef.current = newPoops
 
-    // Collision uses laneRef — always in sync with the latest move()
-    const hit = newPoops.some(p => checkCollision(p, laneRef.current))
+    // Collision check
+    const hit = newPoops.some(p => checkCollision(p, newX))
     if (hit) {
       const newRecord = isNewRecord(newElapsed)
       if (newRecord) setBestScore(newElapsed)
       phaseRef.current = 'gameover'
+      leftHeld.current = false
+      rightHeld.current = false
       setState(prev => ({
         ...prev,
         phase: 'gameover',
-        lane: laneRef.current,
+        characterX: newX,
         elapsedMs: newElapsed,
         poops: newPoops,
         bestScore: newRecord ? newElapsed : prev.bestScore,
@@ -80,7 +90,7 @@ export function useGameEngine() {
       return
     }
 
-    // Animate character (toggle frame every ~300ms)
+    // Character walk animation
     animTickRef.current += delta * 1000
     if (animTickRef.current >= 300) {
       animTickRef.current = 0
@@ -89,7 +99,7 @@ export function useGameEngine() {
 
     setState(prev => ({
       ...prev,
-      lane: laneRef.current,
+      characterX: newX,
       elapsedMs: newElapsed,
       poops: newPoops,
     }))
@@ -99,13 +109,15 @@ export function useGameEngine() {
 
   const startGame = useCallback(() => {
     stopLoop()
-    laneRef.current = INITIAL_LANE
+    characterXRef.current = INITIAL_X
     lastTimeRef.current = 0
     lastSpawnRef.current = null
     animTickRef.current = 0
     elapsedRef.current = 0
     poopsRef.current = []
     phaseRef.current = 'playing'
+    leftHeld.current = false
+    rightHeld.current = false
     setState(prev => ({
       ...INITIAL_STATE(),
       bestScore: prev.bestScore,
@@ -114,30 +126,31 @@ export function useGameEngine() {
     rafRef.current = requestAnimationFrame(tick)
   }, [stopLoop, tick])
 
-  const move = useCallback((direction: Direction) => {
-    if (phaseRef.current !== 'playing') return
-    const next = moveLane(laneRef.current, direction)
-    laneRef.current = next
-    setState(prev => ({ ...prev, lane: next }))
-  }, [])
-
-  const moveLeft = useCallback(() => move('left'), [move])
-  const moveRight = useCallback(() => move('right'), [move])
-
-  // Keyboard handler — stable subscription via ref pattern
-  const moveRef = useRef(move)
-  useEffect(() => { moveRef.current = move }, [move])
-
+  // Keyboard: keydown/keyup for smooth hold movement
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') moveRef.current('left')
-      if (e.key === 'ArrowRight') moveRef.current('right')
+    const down = (e: KeyboardEvent) => {
+      if (phaseRef.current !== 'playing') return
+      if (e.key === 'ArrowLeft') leftHeld.current = true
+      if (e.key === 'ArrowRight') rightHeld.current = true
     }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    const up = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') leftHeld.current = false
+      if (e.key === 'ArrowRight') rightHeld.current = false
+    }
+    window.addEventListener('keydown', down)
+    window.addEventListener('keyup', up)
+    return () => {
+      window.removeEventListener('keydown', down)
+      window.removeEventListener('keyup', up)
+    }
   }, [])
 
   useEffect(() => () => stopLoop(), [stopLoop])
 
-  return { state, animFrame, startGame, resetGame: startGame, moveLeft, moveRight }
+  const holdLeft = useCallback(() => { leftHeld.current = true }, [])
+  const releaseLeft = useCallback(() => { leftHeld.current = false }, [])
+  const holdRight = useCallback(() => { rightHeld.current = true }, [])
+  const releaseRight = useCallback(() => { rightHeld.current = false }, [])
+
+  return { state, animFrame, startGame, resetGame: startGame, holdLeft, releaseLeft, holdRight, releaseRight }
 }

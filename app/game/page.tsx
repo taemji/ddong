@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import { GameCanvas } from '@/components/game/GameCanvas'
 import { GameOverlay } from '@/components/game/GameOverlay'
 import { MobileControls } from '@/components/game/MobileControls'
 import { useGameEngine } from '@/hooks/useGameEngine'
 
 export default function GamePage() {
-  const { state, animFrame, startGame, resetGame, moveLeft, moveRight } = useGameEngine()
+  const { state, animFrame, startGame, resetGame, holdLeft, releaseLeft, holdRight, releaseRight } = useGameEngine()
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">
@@ -22,7 +21,13 @@ export default function GamePage() {
           onRestart={resetGame}
         />
       </div>
-      <MobileControls phase={state.phase} onLeft={moveLeft} onRight={moveRight} />
+      <MobileControls
+        phase={state.phase}
+        onLeftDown={holdLeft}
+        onLeftUp={releaseLeft}
+        onRightDown={holdRight}
+        onRightUp={releaseRight}
+      />
     </div>
   )
 }

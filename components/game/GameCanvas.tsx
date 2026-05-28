@@ -2,9 +2,8 @@
 
 import { useRef, useEffect } from 'react'
 import type { GameState } from '@/types/game'
-import { drawBackground, drawLanes, drawCharacter, drawPoop, CHAR_HEIGHT, POOP_HEIGHT } from '@/lib/pixel-art'
-
-const LANE_COUNT = 5
+import { drawBackground, drawCharacter, drawPoop, CHAR_HEIGHT } from '@/lib/pixel-art'
+import { CANVAS_W, CANVAS_H } from '@/lib/game-engine'
 
 interface Props {
   state: GameState
@@ -20,32 +19,23 @@ export function GameCanvas({ state, animFrame }: Props) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const w = canvas.width
-    const h = canvas.height
-    const laneW = w / LANE_COUNT
+    ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
+    drawBackground(ctx, CANVAS_W, CANVAS_H)
 
-    ctx.clearRect(0, 0, w, h)
-    drawBackground(ctx, w, h)
-    drawLanes(ctx, w, h, LANE_COUNT)
-
-    // Draw poops
     for (const poop of state.poops) {
-      const px = (poop.lane - 0.5) * laneW
-      const py = poop.y * h - POOP_HEIGHT
-      drawPoop(ctx, px, py)
+      const py = poop.y * CANVAS_H
+      drawPoop(ctx, poop.x, py, poop.size)
     }
 
-    // Draw character
-    const cx = (state.lane - 0.5) * laneW
-    const cy = h - CHAR_HEIGHT - 8
-    drawCharacter(ctx, cx, cy, animFrame)
+    const cy = CANVAS_H - CHAR_HEIGHT - 8
+    drawCharacter(ctx, state.characterX, cy, animFrame)
   }, [state, animFrame])
 
   return (
     <canvas
       ref={canvasRef}
-      width={320}
-      height={480}
+      width={CANVAS_W}
+      height={CANVAS_H}
       className="block mx-auto"
       style={{ imageRendering: 'pixelated' }}
     />

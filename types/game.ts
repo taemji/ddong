@@ -1,12 +1,12 @@
 export type GamePhase = 'idle' | 'playing' | 'gameover'
-export type Lane = 1 | 2 | 3 | 4 | 5
 export type Direction = 'left' | 'right'
 
 export interface Poop {
   id: string
-  lane: Lane
-  y: number
-  speed: number
+  x: number      // pixel center
+  y: number      // 0 = top, 1 = bottom (normalized)
+  speed: number  // y increase per second
+  size: number   // scale multiplier 0.7–1.5
 }
 
 export interface Difficulty {
@@ -17,7 +17,7 @@ export interface Difficulty {
 
 export interface GameState {
   phase: GamePhase
-  lane: Lane
+  characterX: number   // pixel center
   elapsedMs: number
   poops: Poop[]
   bestScore: number

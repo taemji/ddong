@@ -1,31 +1,43 @@
-import type { Lane, Direction, Poop, Difficulty } from '@/types/game'
+import type { Direction, Poop, Difficulty } from '@/types/game'
 
-const COLLISION_Y = 0.75
+export const CANVAS_W = 320
+export const CANVAS_H = 480
+export const CHAR_SPEED = 260   // px/s
+export const CHAR_HALF_W = 8    // half of character pixel width
+const COLLISION_Y = 0.78
+const POOP_BASE_HALF_W = 12    // half of poop pixel width at size 1.0
 
-export function moveLane(current: Lane, direction: Direction): Lane {
-  if (direction === 'left') return Math.max(1, current - 1) as Lane
-  return Math.min(5, current + 1) as Lane
+export function moveCharacter(x: number, direction: Direction, deltaSeconds: number): number {
+  const moved = direction === 'left'
+    ? x - CHAR_SPEED * deltaSeconds
+    : x + CHAR_SPEED * deltaSeconds
+  return Math.max(CHAR_HALF_W, Math.min(CANVAS_W - CHAR_HALF_W, moved))
 }
 
-export function spawnPoop(lane: Lane, speed: number): Poop {
-  return { id: crypto.randomUUID(), lane, y: 0, speed }
+export function spawnPoop(speed: number): Poop {
+  const size = 0.7 + Math.random() * 0.8
+  const halfW = POOP_BASE_HALF_W * size
+  const x = halfW + Math.random() * (CANVAS_W - halfW * 2)
+  return { id: crypto.randomUUID(), x, y: 0, speed, size }
 }
 
 export function updatePoops(poops: Poop[], deltaSeconds: number): Poop[] {
   return poops
     .map(p => ({ ...p, y: p.y + p.speed * deltaSeconds }))
-    .filter(p => p.y <= 1)
+    .filter(p => p.y < 1)
 }
 
-export function checkCollision(poop: Poop, characterLane: Lane): boolean {
-  return poop.lane === characterLane && poop.y >= COLLISION_Y
+export function checkCollision(poop: Poop, characterX: number): boolean {
+  if (poop.y < COLLISION_Y) return false
+  const poopHalfW = POOP_BASE_HALF_W * poop.size
+  return Math.abs(poop.x - characterX) < CHAR_HALF_W + poopHalfW
 }
 
 export function getDifficulty(elapsedMs: number): Difficulty {
   const s = elapsedMs / 1000
   return {
-    speed: 0.35 + s * 0.02,
-    maxPoops: Math.min(5, Math.floor(1 + s / 10)),
-    spawnInterval: Math.max(600, 2000 - s * 60),
+    speed: 0.35 + s * 0.022,
+    maxPoops: Math.min(8, Math.floor(1 + s / 8)),
+    spawnInterval: Math.max(500, 2000 - s * 60),
   }
 }

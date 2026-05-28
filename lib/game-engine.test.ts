@@ -1,58 +1,65 @@
 import { describe, it, expect } from 'vitest'
-import { moveLane, spawnPoop, updatePoops, checkCollision, getDifficulty } from './game-engine'
+import {
+  moveCharacter, spawnPoop, updatePoops, checkCollision, getDifficulty,
+  CANVAS_W, CHAR_HALF_W, CHAR_SPEED,
+} from './game-engine'
 
-describe('moveLane', () => {
-  it('moves left from center', () => {
-    expect(moveLane(3, 'left')).toBe(2)
+describe('moveCharacter', () => {
+  it('moves left by speed * delta', () => {
+    const x = moveCharacter(160, 'left', 0.1)
+    expect(x).toBeCloseTo(160 - CHAR_SPEED * 0.1)
+  })
+  it('moves right by speed * delta', () => {
+    const x = moveCharacter(160, 'right', 0.1)
+    expect(x).toBeCloseTo(160 + CHAR_SPEED * 0.1)
   })
   it('clamps at left boundary', () => {
-    expect(moveLane(1, 'left')).toBe(1)
-  })
-  it('moves right from center', () => {
-    expect(moveLane(3, 'right')).toBe(4)
+    expect(moveCharacter(0, 'left', 1)).toBe(CHAR_HALF_W)
   })
   it('clamps at right boundary', () => {
-    expect(moveLane(5, 'right')).toBe(5)
+    expect(moveCharacter(CANVAS_W, 'right', 1)).toBe(CANVAS_W - CHAR_HALF_W)
   })
 })
 
 describe('checkCollision', () => {
-  it('hits when same lane and y >= threshold', () => {
-    expect(checkCollision({ id: '1', lane: 3, y: 0.85, speed: 0.4 }, 3)).toBe(true)
+  it('hits when same X and y above collision zone', () => {
+    expect(checkCollision({ id: '1', x: 160, y: 0.85, speed: 0.4, size: 1 }, 160)).toBe(true)
   })
-  it('misses when same lane but y below threshold', () => {
-    expect(checkCollision({ id: '1', lane: 3, y: 0.5, speed: 0.4 }, 3)).toBe(false)
+  it('misses when y below collision zone', () => {
+    expect(checkCollision({ id: '1', x: 160, y: 0.5, speed: 0.4, size: 1 }, 160)).toBe(false)
   })
-  it('misses when different lane even if y is high', () => {
-    expect(checkCollision({ id: '1', lane: 2, y: 0.9, speed: 0.4 }, 3)).toBe(false)
+  it('misses when X far apart', () => {
+    expect(checkCollision({ id: '1', x: 160, y: 0.9, speed: 0.4, size: 1 }, 300)).toBe(false)
+  })
+  it('hits larger poop at wider X range', () => {
+    // size 1.5 → poopHalfW = 18, charHalfW = 8, total = 26
+    const hit = checkCollision({ id: '1', x: 160, y: 0.9, speed: 0.4, size: 1.5 }, 180)
+    expect(hit).toBe(true)
   })
 })
 
 describe('updatePoops', () => {
-  it('advances poop y by speed * deltaSeconds', () => {
-    const poops = [{ id: '1', lane: 3 as const, y: 0, speed: 0.5 }]
+  it('advances y by speed * delta', () => {
+    const poops = [{ id: '1', x: 160, y: 0, speed: 0.5, size: 1 }]
     const updated = updatePoops(poops, 1)
     expect(updated[0].y).toBeCloseTo(0.5)
   })
-  it('removes poops that pass y=1', () => {
-    const poops = [{ id: '1', lane: 3 as const, y: 0.95, speed: 0.5 }]
-    const updated = updatePoops(poops, 1)
-    expect(updated).toHaveLength(0)
-  })
-  it('keeps poops still within bounds', () => {
-    const poops = [{ id: '1', lane: 3 as const, y: 0.5, speed: 0.1 }]
-    const updated = updatePoops(poops, 0.5)
-    expect(updated).toHaveLength(1)
+  it('removes poops past y=1', () => {
+    const poops = [{ id: '1', x: 160, y: 0.95, speed: 0.5, size: 1 }]
+    expect(updatePoops(poops, 1)).toHaveLength(0)
   })
 })
 
 describe('spawnPoop', () => {
-  it('creates a poop at y=0 with given lane and speed', () => {
-    const poop = spawnPoop(2, 0.5)
-    expect(poop.lane).toBe(2)
-    expect(poop.y).toBe(0)
-    expect(poop.speed).toBe(0.5)
-    expect(poop.id).toBeTruthy()
+  it('spawns within canvas bounds 10 times', () => {
+    for (let i = 0; i < 10; i++) {
+      const p = spawnPoop(0.5)
+      expect(p.x).toBeGreaterThan(0)
+      expect(p.x).toBeLessThan(CANVAS_W)
+      expect(p.y).toBe(0)
+      expect(p.size).toBeGreaterThanOrEqual(0.7)
+      expect(p.size).toBeLessThanOrEqual(1.5)
+    }
   })
 })
 
