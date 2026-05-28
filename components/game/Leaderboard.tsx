@@ -10,7 +10,7 @@ interface Props {
   limit?: number       // 표시할 최대 항목 수 (기본 10)
 }
 
-export function Leaderboard({ highlightMs, limit = 10 }: Props) {
+export function Leaderboard({ highlightMs, limit = 5 }: Props) {
   const [scores, setScores] = useState<ScoreEntry[]>([])
   const [loading, setLoading] = useState(true)
 

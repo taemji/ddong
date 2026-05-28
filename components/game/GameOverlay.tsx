@@ -198,7 +198,7 @@ export function GameOverlay({ phase, elapsedMs, bestScore, isNewRecord, countdow
             <NicknameInput onSubmit={handleNicknameSubmit} isLoading={saving} />
           ) : (
             <div className="w-full max-w-[220px] max-h-[140px] overflow-y-auto">
-              <Leaderboard highlightMs={elapsedMs} />
+              <Leaderboard highlightMs={elapsedMs} limit={5} />
             </div>
           )}
 
