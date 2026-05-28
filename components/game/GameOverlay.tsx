@@ -1,7 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { PixelButton } from './PixelButton'
 import type { GamePhase } from '@/types/game'
+import { cn } from '@/lib/utils'
 
 interface Props {
   phase: GamePhase
@@ -26,24 +27,21 @@ export function GameOverlay({ phase, elapsedMs, bestScore, isNewRecord, onStart,
       {phase === 'idle' && (
         <>
           <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-[0.3em] text-white">똥피하기</h1>
-            <p className="text-[11px] tracking-[0.6em] text-white/30 mt-2">POOP DODGE</p>
+            <h1 className="text-4xl font-bold tracking-[0.3em] text-white font-mono">똥피하기</h1>
+            <p className="text-[11px] tracking-[0.6em] text-white/30 mt-2 font-mono">POOP DODGE</p>
           </div>
 
           {bestScore > 0 && (
-            <p className="text-sm text-white/45 tracking-widest">
+            <p className="text-sm text-white/45 tracking-widest font-mono">
               최고기록 &nbsp; {formatTime(bestScore)}
             </p>
           )}
 
-          <Button
-            onClick={onStart}
-            className="w-44 bg-white/95 text-black hover:bg-white font-bold tracking-widest rounded-sm"
-          >
+          <PixelButton onClick={onStart} variant="filled">
             시 작
-          </Button>
+          </PixelButton>
 
-          <p className="text-[10px] text-white/25 tracking-wider">
+          <p className="text-[10px] text-white/25 tracking-wider font-mono">
             ← → 방향키 또는 하단 버튼
           </p>
         </>
@@ -51,41 +49,35 @@ export function GameOverlay({ phase, elapsedMs, bestScore, isNewRecord, onStart,
 
       {phase === 'gameover' && (
         <>
-          <p className="text-xs tracking-[0.5em] text-white/40 font-medium">GAME OVER</p>
+          <p className="text-xs tracking-[0.5em] text-white/40 font-mono font-bold">GAME OVER</p>
 
           {isNewRecord && (
-            <p className="text-yellow-400/90 text-[11px] tracking-[0.4em] -mt-3">
+            <p className="text-yellow-400/90 text-[11px] tracking-[0.4em] -mt-3 font-mono">
               ✦ NEW RECORD ✦
             </p>
           )}
 
-          {/* Hero: big time */}
           <div className="text-center -mt-1">
-            <p className="text-6xl font-bold text-white tabular-nums leading-none">
+            <p className="text-6xl font-bold text-white tabular-nums leading-none font-mono">
               {(elapsedMs / 1000).toFixed(2)}
             </p>
-            <p className="text-sm text-white/40 mt-1 tracking-wider">초</p>
+            <p className="text-sm text-white/40 mt-1 tracking-wider font-mono">초</p>
           </div>
 
-          {/* Best score — only shown if not new record (avoid redundancy) */}
           {!isNewRecord && (
-            <p className="text-sm text-white/35 tracking-widest -mt-2">
+            <p className="text-sm text-white/35 tracking-widest -mt-2 font-mono">
               최고기록 {formatTime(bestScore)}
             </p>
           )}
           {isNewRecord && (
-            <p className="text-sm text-yellow-400/60 tracking-widest -mt-2">
+            <p className="text-sm text-yellow-400/60 tracking-widest -mt-2 font-mono">
               새 최고기록 🎉
             </p>
           )}
 
-          <Button
-            onClick={onRestart}
-            variant="outline"
-            className="w-44 border-white/25 text-white/80 hover:bg-white/10 hover:text-white rounded-sm tracking-widest bg-transparent"
-          >
+          <PixelButton onClick={onRestart} variant="outline">
             다시 시작
-          </Button>
+          </PixelButton>
         </>
       )}
     </div>
