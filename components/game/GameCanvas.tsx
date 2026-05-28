@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from 'react'
 import type { GameState } from '@/types/game'
-import { drawBackground, drawCharacter, drawPoop, CHAR_HEIGHT } from '@/lib/pixel-art'
+import { drawBackground, drawCharacter, drawPoop, drawHUD, CHAR_HEIGHT } from '@/lib/pixel-art'
 import { CANVAS_W, CANVAS_H } from '@/lib/game-engine'
 
 interface Props {
@@ -23,12 +23,15 @@ export function GameCanvas({ state, animFrame }: Props) {
     drawBackground(ctx, CANVAS_W, CANVAS_H)
 
     for (const poop of state.poops) {
-      const py = poop.y * CANVAS_H
-      drawPoop(ctx, poop.x, py, poop.size)
+      drawPoop(ctx, poop.x, poop.y * CANVAS_H, poop.size)
     }
 
     const cy = CANVAS_H - CHAR_HEIGHT - 8
     drawCharacter(ctx, state.characterX, cy, animFrame)
+
+    if (state.phase === 'playing') {
+      drawHUD(ctx, state.elapsedMs, CANVAS_W)
+    }
   }, [state, animFrame])
 
   return (
@@ -36,7 +39,7 @@ export function GameCanvas({ state, animFrame }: Props) {
       ref={canvasRef}
       width={CANVAS_W}
       height={CANVAS_H}
-      className="block mx-auto"
+      className="absolute inset-0 w-full h-full"
       style={{ imageRendering: 'pixelated' }}
     />
   )

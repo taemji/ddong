@@ -9,8 +9,18 @@ export default function GamePage() {
   const { state, animFrame, startGame, resetGame, holdLeft, releaseLeft, holdRight, releaseRight } = useGameEngine()
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-      <div className="relative">
+    <div
+      className="flex flex-col items-center justify-center min-h-screen"
+      style={{ background: '#0d0d1a' }}
+    >
+      {/* 반응형 게임 컨테이너: 세로 기준으로 최대, 가로도 안 넘게 */}
+      <div
+        className="relative"
+        style={{
+          width: 'min(calc(100vw - 32px), calc((100vh - 160px) * 320 / 480))',
+          aspectRatio: '320 / 480',
+        }}
+      >
         <GameCanvas state={state} animFrame={animFrame} />
         <GameOverlay
           phase={state.phase}
@@ -21,6 +31,7 @@ export default function GamePage() {
           onRestart={resetGame}
         />
       </div>
+
       <MobileControls
         phase={state.phase}
         onLeftDown={holdLeft}

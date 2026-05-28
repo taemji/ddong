@@ -84,6 +84,19 @@ export function drawPoop(ctx: CanvasRenderingContext2D, x: number, y: number, si
   drawSprite(ctx, POOP_SPRITE, Math.round(x - spriteW / 2), Math.round(y - spriteH / 2), size)
 }
 
+export function drawHUD(ctx: CanvasRenderingContext2D, elapsedMs: number, w: number) {
+  const text = (elapsedMs / 1000).toFixed(2) + '초'
+  ctx.save()
+  ctx.font = 'bold 13px monospace'
+  ctx.textAlign = 'right'
+  ctx.textBaseline = 'top'
+  ctx.fillStyle = 'rgba(0,0,0,0.5)'
+  ctx.fillRect(w - 76, 6, 70, 20)
+  ctx.fillStyle = 'rgba(255,255,255,0.95)'
+  ctx.fillText(text, w - 10, 9)
+  ctx.restore()
+}
+
 export const CHAR_HEIGHT = CHARACTER_FRAMES[0].length * SCALE
 export const CHAR_WIDTH = CHARACTER_FRAMES[0][0].length * SCALE
 export const POOP_HEIGHT = POOP_SPRITE.length * SCALE
