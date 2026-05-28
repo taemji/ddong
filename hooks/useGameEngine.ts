@@ -4,6 +4,13 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import type { GameState } from '@/types/game'
 import { moveCharacter, spawnPoop, updatePoops, checkCollision, getDifficulty, CANVAS_W } from '@/lib/game-engine'
 import { getBestScore, setBestScore, isNewRecord } from '@/lib/best-score-store'
+import {
+  playCountdownBeep,
+  playGoSound,
+  playCollision,
+  playGameOver,
+  loadMutedFromStorage,
+} from '@/lib/sound-engine'
 
 const INITIAL_X = CANVAS_W / 2
 
@@ -19,6 +26,10 @@ const INITIAL_STATE = (): GameState => ({
 export function useGameEngine() {
   const [state, setState] = useState<GameState>(INITIAL_STATE)
   const [animFrame, setAnimFrame] = useState(0)
+  const [countdownNum, setCountdownNum] = useState<number | null>(null)
+
+  // Load mute preference on mount
+  useEffect(() => { loadMutedFromStorage() }, [])
 
   const rafRef = useRef<number | null>(null)
   const lastTimeRef = useRef<number>(0)
@@ -75,6 +86,8 @@ export function useGameEngine() {
     if (hit) {
       const newRecord = isNewRecord(newElapsed)
       if (newRecord) setBestScore(newElapsed)
+      playCollision()
+      setTimeout(() => playGameOver(), 200)
       phaseRef.current = 'gameover'
       leftHeld.current = false
       rightHeld.current = false
@@ -107,7 +120,8 @@ export function useGameEngine() {
     rafRef.current = requestAnimationFrame(tick)
   }, [])
 
-  const startGame = useCallback(() => {
+  // Begin the actual game loop — called after countdown reaches 0
+  const beginLoop = useCallback(() => {
     stopLoop()
     characterXRef.current = INITIAL_X
     lastTimeRef.current = 0
@@ -125,6 +139,58 @@ export function useGameEngine() {
     }))
     rafRef.current = requestAnimationFrame(tick)
   }, [stopLoop, tick])
+
+  // Countdown: 3 → 2 → 1 → 0 ("GO!") → beginLoop
+  useEffect(() => {
+    if (countdownNum === null) return
+    if (countdownNum <= 0) {
+      playGoSound()
+      const timer = setTimeout(() => {
+        setCountdownNum(null)
+        beginLoop()
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+    playCountdownBeep()
+    const timer = setTimeout(() => {
+      setCountdownNum(n => (n !== null ? n - 1 : null))
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [countdownNum, beginLoop])
+
+  // Start countdown instead of immediately starting the loop
+  const startGame = useCallback(() => {
+    stopLoop()
+    setCountdownNum(null) // reset any in-progress countdown
+    phaseRef.current = 'countdown'
+    leftHeld.current = false
+    rightHeld.current = false
+    setState(prev => ({
+      ...INITIAL_STATE(),
+      bestScore: prev.bestScore,
+      phase: 'countdown',
+    }))
+    setCountdownNum(3)
+  }, [stopLoop])
+
+  // ESC key: pause / resume
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      if (phaseRef.current === 'playing') {
+        phaseRef.current = 'paused'
+        setState(prev => ({ ...prev, phase: 'paused' }))
+        // tick() exits early when phase !== 'playing', RAF stops naturally
+      } else if (phaseRef.current === 'paused') {
+        phaseRef.current = 'playing'
+        lastTimeRef.current = 0 // reset delta to avoid jump on resume
+        setState(prev => ({ ...prev, phase: 'playing' }))
+        rafRef.current = requestAnimationFrame(tick)
+      }
+    }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [tick])
 
   // Keyboard: keydown/keyup for smooth hold movement
   useEffect(() => {
@@ -152,5 +218,5 @@ export function useGameEngine() {
   const holdRight = useCallback(() => { rightHeld.current = true }, [])
   const releaseRight = useCallback(() => { rightHeld.current = false }, [])
 
-  return { state, animFrame, startGame, resetGame: startGame, holdLeft, releaseLeft, holdRight, releaseRight }
+  return { state, animFrame, countdownNum, startGame, resetGame: startGame, holdLeft, releaseLeft, holdRight, releaseRight }
 }

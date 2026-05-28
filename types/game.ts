@@ -1,4 +1,4 @@
-export type GamePhase = 'idle' | 'playing' | 'gameover'
+export type GamePhase = 'idle' | 'countdown' | 'playing' | 'paused' | 'gameover'
 export type Direction = 'left' | 'right'
 
 export interface Poop {
