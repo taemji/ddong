@@ -41,10 +41,10 @@ describe('GameOverlay — gameover phase', () => {
     expect(screen.getByText('GAME OVER')).toBeInTheDocument()
   })
 
-  it('shows elapsed time as separate number and 초 label', () => {
+  it('shows elapsed time as big number with s unit', () => {
     render(<GameOverlay phase="gameover" elapsedMs={12340} bestScore={25670} isNewRecord={false} onStart={noop} onRestart={noop} />)
     expect(screen.getByText('12.34')).toBeInTheDocument()
-    expect(screen.getByText('초')).toBeInTheDocument()
+    expect(screen.getByText('s')).toBeInTheDocument()
   })
 
   it('shows restart button', () => {
@@ -66,6 +66,6 @@ describe('GameOverlay — gameover phase', () => {
   it('shows best score when not a new record', () => {
     render(<GameOverlay phase="gameover" elapsedMs={12340} bestScore={25670} isNewRecord={false} onStart={noop} onRestart={noop} />)
     expect(screen.getByText(/최고기록/i)).toBeInTheDocument()
-    expect(screen.getByText(/25\.67초/)).toBeInTheDocument()
+    expect(screen.getByText('25.67')).toBeInTheDocument()
   })
 })

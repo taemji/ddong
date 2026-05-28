@@ -38,26 +38,25 @@ const CHARACTER_FRAMES: Color[][][] = [
   ],
 ]
 
-// 13×14 — three-tier coiled poop (soft-serve stack)
-// Each tier is visibly wider than the one above, with a horizontal seam row between
-// Tier 3 (top):    cols 5-7, narrows to tip (rows 0-3)
-// Tier 2 (middle): cols 3-9, 7 wide (rows 5-7)
-// Tier 1 (bottom): cols 1-11, 11 wide, contains face (rows 9-13)
+// 13×14 — three-tier coiled poop, eyes on tier 2, smile on tier 1
+// Tier 3 (top):    cols 4-8, narrows to tip (rows 0-3) — swirl
+// Tier 2 (middle): cols 2-10, 9 wide (rows 5-8) — EYES
+// Tier 1 (bottom): cols 0-12, 13 wide (rows 10-13) — SMILE
 //       0  1  2  3  4  5  6  7  8  9 10 11 12
 const POOP_SPRITE: Color[][] = [
   [C._, C._, C._, C._, C._, C._, C.W, C._, C._, C._, C._, C._, C._],  //  0  tip
-  [C._, C._, C._, C._, C._, C.W, C.X, C.W, C._, C._, C._, C._, C._],  //  1  tip widens
+  [C._, C._, C._, C._, C._, C.W, C.X, C.W, C._, C._, C._, C._, C._],  //  1  tip curl
   [C._, C._, C._, C._, C.W, C.X, C.X, C.X, C.W, C._, C._, C._, C._],  //  2  tier 3 body
   [C._, C._, C._, C._, C.W, C.X, C.X, C.X, C.W, C._, C._, C._, C._],  //  3  tier 3 base
   [C._, C._, C._, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C._, C._, C._],  //  4  SEAM 1
-  [C._, C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._],  //  5  tier 2 wider
-  [C._, C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._],  //  6  tier 2 body
-  [C._, C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._],  //  7  tier 2 base
-  [C._, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C._],  //  8  SEAM 2
-  [C.W, C.X, C.X, C.E, C.E, C.X, C.X, C.X, C.E, C.E, C.X, C.X, C.W],  //  9  tier 1 — eyes
-  [C.W, C.X, C.X, C.E, C.F, C.X, C.X, C.X, C.E, C.F, C.X, C.X, C.W],  // 10  pupils
+  [C._, C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._],  //  5  tier 2 top
+  [C._, C._, C.W, C.X, C.E, C.E, C.X, C.E, C.E, C.X, C.W, C._, C._],  //  6  EYES (mid tier)
+  [C._, C._, C.W, C.X, C.E, C.F, C.X, C.E, C.F, C.X, C.W, C._, C._],  //  7  pupils
+  [C._, C._, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C._, C._],  //  8  tier 2 base
+  [C._, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C.W, C._],  //  9  SEAM 2
+  [C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W],  // 10  tier 1 widest
   [C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W],  // 11  cheeks
-  [C.W, C.X, C.X, C.X, C.E, C.E, C.E, C.E, C.E, C.X, C.X, C.X, C.W],  // 12  smile
+  [C.W, C.X, C.X, C.E, C.E, C.E, C.E, C.E, C.E, C.E, C.X, C.X, C.W],  // 12  SMILE (bottom)
   [C._, C.W, C.W, C.X, C.X, C.X, C.X, C.X, C.X, C.X, C.W, C.W, C._],  // 13  base
 ]
 
