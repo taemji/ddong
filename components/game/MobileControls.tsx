@@ -17,6 +17,7 @@ export function MobileControls({ phase, onLeft, onRight }: Props) {
       <Button
         variant="outline"
         className="flex-1 h-14 text-2xl"
+        aria-label="왼쪽으로 이동"
         onPointerDown={onLeft}
       >
         ←
@@ -24,6 +25,7 @@ export function MobileControls({ phase, onLeft, onRight }: Props) {
       <Button
         variant="outline"
         className="flex-1 h-14 text-2xl"
+        aria-label="오른쪽으로 이동"
         onPointerDown={onRight}
       >
         →
